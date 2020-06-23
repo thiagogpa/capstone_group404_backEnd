@@ -1,28 +1,28 @@
 module.exports = app => {
-  const users = require("../controllers/bin.controller");
+  const bin = require("../controllers/bin.controller");
 
   var router = require("express").Router();
 
   // Create a new Bin
-  router.post("/", users.create);
+  router.post("/", bin.create);
 
   // Retrieve all Bin
-  router.get("/", users.findAll);
+  router.get("/", bin.findAll);
 
   // Retrieve all published Bin
-  router.get("/published", users.findAllPublished);
+  router.get("/published", bin.findAllPublished);
 
   // Retrieve a single Bin with id
-  router.get("/:id", users.findOne);
+  router.get("/:id", bin.findOne);
 
   // Update a Bin with id
-  router.put("/:id", users.update);
+  router.put("/:id", bin.update);
 
   // Delete a Bin with id
-  router.delete("/:id", users.delete);
+  router.delete("/:id", bin.delete);
 
   // Create a new Bin
-  router.delete("/", users.deleteAll);
+  router.delete("/", bin.deleteAll);
 
   app.use('/api/bin', router);
 };

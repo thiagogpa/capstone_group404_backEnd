@@ -5,7 +5,7 @@ const { logger } = require("../config/logger");
 
 // Create and Save a new Bin
 exports.create = (req, res) => {
-  logger.info('Calling Bin Creation Api');
+  logger.debug('Calling Bin Creation Api');
 
   // Validate request
   if (!req.body) {
@@ -38,7 +38,7 @@ exports.create = (req, res) => {
 
 // Retrieve all Bin from the database.
 exports.findAll = (req, res) => {
-  logger.info('Calling Bin FindAll Api');
+  logger.debug('Calling Bin FindAll Api');
 
   const title = req.query.title;
   var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
@@ -56,7 +56,7 @@ exports.findAll = (req, res) => {
 
 // Find a single Bin with an id
 exports.findOne = (req, res) => {
-  logger.info('Calling Bin FindOne Api');
+  logger.debug('Calling Bin FindOne Api');
 
   const id = req.params.id;
 
@@ -73,7 +73,7 @@ exports.findOne = (req, res) => {
 
 // Update a Bin by the id in the request
 exports.update = (req, res) => {
-  logger.info('Calling Bin update Api');
+  logger.debug('Calling Bin update Api');
 
   const id = req.params.id;
 
@@ -100,7 +100,7 @@ exports.update = (req, res) => {
 
 // Delete a Bin with the specified id in the request
 exports.delete = (req, res) => {
-  logger.info('Calling Bin Delete Api');
+  logger.debug('Calling Bin Delete Api');
 
   const id = req.params.id;
 
@@ -127,7 +127,7 @@ exports.delete = (req, res) => {
 
 // Delete all Bin from the database.
 exports.deleteAll = (req, res) => {
-  logger.info('Calling Bin Delete All Api');
+  logger.debug('Calling Bin Delete All Api');
 
   Bin.destroy({
     where: {},
@@ -145,7 +145,7 @@ exports.deleteAll = (req, res) => {
 
 // find all published Bin ***** THIS IS AN EXAMPLE IT WILL NOT WORK WITH THIS DATABASE
 exports.findAllPublished = (req, res) => {
-  logger.info('Calling Bin FindAll Api');
+  logger.debug('Calling Bin FindAll Api');
 
   Bin.findAll({ where: { published: true } })
     .then((data) => {
