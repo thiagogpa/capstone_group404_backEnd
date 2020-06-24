@@ -1,8 +1,13 @@
+const {
+  DB_LOG_SEQUELIZE,
+} = require("../../config");
+
+
 const dbConfig = require("../config/db.config.js");
 
 const Sequelize = require("sequelize");
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
-  logging: false,
+  logging: JSON.parse(DB_LOG_SEQUELIZE),
   host: dbConfig.HOST,
   dialect: dbConfig.dialect,
   operatorsAliases: false,

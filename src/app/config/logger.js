@@ -1,4 +1,9 @@
 const log4js = require("log4js");
+const {
+  SERVER_LOG_LEVEL,
+  SERVER_LOG_CATEGORY,
+  SERVER_LOG_FILE,
+} = require("./../../config");
 
 class AppLogger {
   /**
@@ -10,17 +15,13 @@ class AppLogger {
     }
     AppLogger.instance = this;
 
-    this.appender = {
-      DEVELOPMENT: "default",
-      FILE: "file",
-    };
 
     this.logger = logger;
     this.logger.configure({
       appenders: {
         file: {
           type: "dateFile",
-          filename: "logs/application.log",
+          filename: SERVER_LOG_FILE,
           keepFileExt: true,
           layout: { type: "pattern", pattern: "[%d] [%p] %m" },
         },
@@ -30,15 +31,15 @@ class AppLogger {
         },
       },
       categories: {
-        default: { appenders: ["console"], level: "debug" },
-        file: { appenders: ["file"], level: "debug" },
+        default: { appenders: ["console"], level: SERVER_LOG_LEVEL },
+        file: { appenders: ["file"], level: SERVER_LOG_LEVEL },
       },
     });
   }
 
   //Change this to set the log to a file instead of console
   getLogger() {
-    return this.logger.getLogger(this.appender.DEVELOPMENT);
+    return this.logger.getLogger(SERVER_LOG_CATEGORY);
   }
 }
 

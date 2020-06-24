@@ -7,7 +7,7 @@ const bcrypt = require("bcrypt");
 
 // Create and Save a new Login
 exports.create = (req, res) => {
-  logger.debug("Calling Login Creation Api");
+  logger.trace("Calling Login Creation Api");
 
   // Validate request
   if (!req.body) {
@@ -27,18 +27,14 @@ exports.create = (req, res) => {
   bcrypt
     .genSalt(saltRounds)
     .then((salt) => {
-      logger.debug(`Salt: ${salt}`);
-
       return bcrypt.hash(login.password, salt);
     })
     .then((hash) => {
-      logger.debug(`Hash: ${hash}`);
       login.password = hash;
 
       // Save Login in the database
       Login.create(login)
         .then((data) => {
-          logger.debug("Returning data");
           res.send(data);
         })
         .catch((err) => {
@@ -53,7 +49,7 @@ exports.create = (req, res) => {
 
 // Retrieve all Login from the database.
 exports.findAll = (req, res) => {
-  logger.debug("Calling Login FindAll Api");
+  logger.trace("Calling Login FindAll Api");
 
   const title = req.query.title;
   var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
@@ -71,7 +67,7 @@ exports.findAll = (req, res) => {
 
 // Delete a Login with the specified id in the request
 exports.delete = (req, res) => {
-  logger.debug("Calling Login Delete Api");
+  logger.trace("Calling Login Delete Api");
 
   const username = req.params.username;
 
@@ -98,7 +94,7 @@ exports.delete = (req, res) => {
 
 // Delete all Login from the database.
 exports.deleteAll = (req, res) => {
-  logger.debug("Calling Login Delete All Api");
+  logger.trace("Calling Login Delete All Api");
 
   Login.destroy({
     where: {},
@@ -117,7 +113,7 @@ exports.deleteAll = (req, res) => {
 
 // Find a single Login with an id
 exports.findOne = (req, res) => {
-  logger.debug("Calling Login FindOne Api");
+  logger.trace("Calling Login FindOne Api");
 
   const username = req.params.username;
 

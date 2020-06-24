@@ -1,8 +1,16 @@
+const {
+  DB_HOST,
+  DB_PORT,
+  DB_SCHEMA,
+  DB_USERNAME,
+  DB_PASSWORD,
+} = require("../../config");
+
 module.exports = {
-  HOST: "192.168.0.100",
-  USER: "wallup",
-  PASSWORD: "Unv0R9qOQxS1FuL8",
-  DB: "wallup",
+  HOST: DB_HOST,
+  USER: DB_USERNAME,
+  PASSWORD: DB_PASSWORD,
+  DB: DB_SCHEMA,
   dialect: "mysql",
   pool: {
     max: 100,

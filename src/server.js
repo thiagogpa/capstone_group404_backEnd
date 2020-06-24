@@ -1,6 +1,11 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const {
+  SERVER_PORT,
+  SERVER_NAME,
+  DB_RESET_ON_SERVER_START,
+} = require("./config");
 
 const app = express();
 
@@ -9,15 +14,11 @@ const withAuth = require("./app/middleware/middleware");
 const { logger } = require("./app/config/logger");
 
 const cookieParser = require("cookie-parser");
-const path = require("path");
-const jwt = require("jsonwebtoken");
-
-const secret = "mysecretsshhh";
 
 app.use(cookieParser());
 
 var corsOptions = {
-  origin: "http://localhost:8080",
+  origin: `${SERVER_NAME}:${SERVER_PORT}`,
 };
 
 app.use(cors(corsOptions));
@@ -30,27 +31,23 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const db = require("./app/models");
 
-// only syncronizes the tables
-db.sequelize.sync();
-
-// drop the table if it already exists
-/*
-db.sequelize.sync({ force: true }).then(() => {
-  console.log("Drop and re-sync db.");
-});
-*/
-
-// simple route
-app.get("/", (req, res) => {
-  res.json({ message: "Hello" });
-});
+if (JSON.parse(DB_RESET_ON_SERVER_START)){
+  // drops the tables and recreate them
+  db.sequelize.sync({ force: true }).then(() => {
+    console.log("Drop and re-sync db done.");
+  });
+} else {
+  // only syncronizes the tables
+  db.sequelize.sync();
+}
 
 app.get("/checkToken", withAuth, function (req, res) {
-  logger.debug("CheckToken - Startet API");
+  logger.trace("CheckToken API");
   res.sendStatus(200);
 });
 
 app.get("/faq", (req, res) => {
+  logger.trace("FAQ API");
   res.json([
     {
       id: 0,
@@ -102,11 +99,10 @@ app.get("/faq", (req, res) => {
 require("./app/routes/routes")(app);
 
 // set port, listen for requests
-const PORT = process.env.PORT || 8080;
-var server = app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
+var server = app.listen(SERVER_PORT, () => {
+  logger.info(`Server is running on port ${SERVER_PORT}.`);
 });
 
-logger.debug("Starting");
+
 
 module.exports = server;
