@@ -13,8 +13,6 @@ const secret = "mysecretsshhh";
 
 // Authenticate the provided user
 exports.authenticate = (req, res) => {
- 
-
   logger.debug("Calling Login Authenticate Api");
 
   const { username: providedUsername, password: providedPassword } = req.body;
@@ -30,7 +28,7 @@ exports.authenticate = (req, res) => {
             logger.debug("Match = " + match);
             if (match) {
               //Password DID match / Issue token
-              logger.debug("CREATING COOKIE")
+              logger.debug("CREATING COOKIE");
               const payload = { providedUsername };
               const token = jwt.sign(payload, secret, {
                 expiresIn: "1h",
@@ -64,4 +62,10 @@ exports.authenticate = (req, res) => {
         message: "Error retrieving Login with username=" + providedUsername,
       });
     });
+};
+
+// Authenticate the provided user
+exports.logoff = (req, res) => {
+  logger.debug('Logging Off')
+  res.cookie("token", null, { httpOnly: true }).sendStatus(200);
 };

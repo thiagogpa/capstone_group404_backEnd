@@ -4,7 +4,10 @@
   "description": "capstone backend",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --timeout 10000",
+    "test:coverage": "nyc mocha",
+    "test:repl": "mocha debug",
+    "test:debug": "mocha --inspect --debug-brk"
   },
   "author": "",
   "license": "ISC",
@@ -18,5 +21,24 @@
     "log4js": "^6.3.0",
     "mysql2": "^2.1.0",
     "sequelize": "^5.21.13"
+  },
+  "devDependencies": {
+    "babel-plugin-istanbul": "^6.0.0",
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "mocha": "^8.0.1",
+    "nyc": "^15.1.0"
+  },
+  "babel": {
+    "presets": [
+      "latest"
+    ],
+    "env": {
+      "test": {
+        "plugins": [
+          "istanbul"
+        ]
+      }
+    }
   }
 }

@@ -6,5 +6,8 @@ module.exports = (app) => {
   // Authenticate using username
   router.post("/authenticate", login.authenticate);
 
+  // Authenticate using username
+  router.post("/logoff", login.logoff);
+
   app.use("/api/", router);
 };
