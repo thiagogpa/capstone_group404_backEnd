@@ -19,6 +19,8 @@ exports.create = async (req, res) => {
     return;
   }
 
+  const isStaff = req.body.staff;
+
   // Creates a Login
   let newLogin = {
     username: req.body.login.username,
@@ -34,16 +36,18 @@ exports.create = async (req, res) => {
     profileId: req.body.user.profileId,
   };
 
-  let newAddress = {
-    street: req.body.address.street,
-    numberStreet: req.body.address.numberStreet,
-    city: req.body.address.city,
-    province: req.body.address.province,
-    zipcode: req.body.address.zipcode,
-    userId: null,
-  };
-
-  const isStaff = req.body.staff;
+  //Address is only necessary if the new Login is not part of staff
+  let newAddress;
+  if (isStaff !== true) {
+    newAddress = {
+      street: req.body.address.street,
+      numberStreet: req.body.address.numberStreet,
+      city: req.body.address.city,
+      province: req.body.address.province,
+      zipcode: req.body.address.zipcode,
+      userId: null,
+    };
+  }
 
   const saltRounds = 10;
   await bcrypt
@@ -62,20 +66,23 @@ exports.create = async (req, res) => {
   try {
     currentModel = "User";
     await db.sequelize.transaction(async (t) => {
+      logger.debug("Creating user");
       // Save Login in the database
       await User.create(newUser, { transaction: t }).then((data) => {
-        newLogin.userId = data.id;
-        newAddress.userId = data.id;
+        newLogin.userId = data.id;        
       });
 
       if (!isStaff) {
+        logger.debug("Creating address");        
         currentModel = "Address";
+        newAddress.userId = newLogin.userId;
         // Save Address in the database
         await Address.create(newAddress, { transaction: t });
       }
 
       currentModel = "Login";
       // Save Login in the database
+      logger.debug("Creating login");
       await Login.create(newLogin, { transaction: t }).then((data) => {
         res.send(data);
       });
@@ -107,11 +114,10 @@ exports.findAll = async (req, res) => {
         {
           model: db.users,
           include: [
-            {              
-              model: db.addresses
+            {
+              model: db.addresses,
             },
           ],
-
         },
       ],
     })
@@ -130,7 +136,6 @@ exports.findAll = async (req, res) => {
     });
   }
 };
-
 
 // Delete a Login with the specified id in the request
 exports.delete = (req, res) => {

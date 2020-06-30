@@ -1,5 +1,5 @@
 const db = require("../config/db.config");
-const Login = db.login;
+const Login = db.logins;
 const { logger } = require("../config/logger");
 const bcrypt = require("bcrypt");
 
