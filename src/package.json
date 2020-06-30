@@ -2,7 +2,7 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "capstone backend",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "mocha --timeout 10000",
     "test:coverage": "nyc mocha",

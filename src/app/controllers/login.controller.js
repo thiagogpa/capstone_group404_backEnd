@@ -7,6 +7,8 @@ const { logger } = require("../config/logger");
 
 const bcrypt = require("bcrypt");
 
+/**************************************************************************************************************/
+
 // Create and Save a new Login
 exports.create = async (req, res) => {
   logger.trace("Calling Login Creation Api");
@@ -69,11 +71,11 @@ exports.create = async (req, res) => {
       logger.debug("Creating user");
       // Save Login in the database
       await User.create(newUser, { transaction: t }).then((data) => {
-        newLogin.userId = data.id;        
+        newLogin.userId = data.id;
       });
 
       if (!isStaff) {
-        logger.debug("Creating address");        
+        logger.debug("Creating address");
         currentModel = "Address";
         newAddress.userId = newLogin.userId;
         // Save Address in the database
@@ -99,6 +101,7 @@ exports.create = async (req, res) => {
   logger.trace("DONE Calling Login Creation Api");
 };
 
+/**************************************************************************************************************/
 // Retrieve all Login from the database.
 exports.findAll = async (req, res) => {
   logger.trace("Calling Login FindAll Api");
@@ -115,7 +118,7 @@ exports.findAll = async (req, res) => {
           model: db.users,
           include: [
             {
-              model: db.addresses,
+              model: db.profiles,
             },
           ],
         },
@@ -137,40 +140,122 @@ exports.findAll = async (req, res) => {
   }
 };
 
-// Delete a Login with the specified id in the request
-exports.delete = (req, res) => {
-  logger.trace("Calling Login Delete Api");
+/**************************************************************************************************************/
+
+// Find a single Login with an id
+exports.findOne = async (req, res) => {
+  logger.trace("Calling Login FindOne Api");
 
   const username = req.params.username;
 
-  Login.destroy({
-    where: { id: username },
+  await Login.findByPk(username, {
+    include: [
+      {
+        model: db.users,
+        include: [
+          {
+            model: db.addresses,
+          },
+        ],
+      },
+    ],
   })
-    .then((num) => {
-      if (num == 1) {
-        res.send({
-          message: "Login was deleted successfully!",
+    .then((data) => {
+      logger.debug("here 1");
+      if (data) res.send(data);
+      else
+        res.status(404).send({
+          message: "No login matches the  username = " + username,
         });
-      } else {
-        res.send({
-          message: `Cannot delete Login with username=${username}. Maybe Login was not found!`,
-        });
-      }
     })
     .catch((err) => {
+      logger.debug("here 2");
       res.status(500).send({
-        message: "Could not delete Login with username=" + username,
+        message: "Error retrieving Login with username = " + username,
+        error: err.error,
       });
     });
 };
 
+/**************************************************************************************************************/
+
+// Delete a Login with the specified id in the request
+exports.delete = async (req, res) => {
+  logger.trace("Calling Login Delete Api");
+
+  const username = req.params.username;
+
+  let currentModel = null;
+  try {
+    await db.sequelize.transaction(async (t) => {
+      currentModel = "Login";
+      //Checks if there is a login with that username, otherwise stops here
+
+      currentModel = "Login";
+      await Login.findByPk(username, {
+        include: [
+          {
+            model: db.users,
+            include: [
+              {
+                model: db.addresses,
+              },
+            ],
+          },
+        ],
+        transaction: t,
+      }).then((data) => {
+        if (!data) {
+          throw new Error("There was no login with the username = " + username);
+        }
+
+        let userID = data.userId;
+        currentModel = "User";
+        User.destroy(
+          {
+            where: { id: userID },
+          },
+          { transaction: t }
+        );
+
+        let addressId = data.userId;
+        currentModel = "Address";
+        Address.destroy(
+          {
+            where: { userId: userID },
+          },
+          { transaction: t }
+        ).catch((err) => {
+          throw err;
+        });
+
+        currentModel = "Login";
+        Login.destroy(
+          {
+            where: { username: username },
+          },
+          { transaction: t }
+        ).then(res.send({ message: "Login was successfully deleted" }));
+      });
+    });
+  } catch (error) {
+    // If the execution reaches this line, an error occurred.
+    // The transaction has already been rolled back automatically by Sequelize!
+    res.status(500).send({
+      message: "Some error occurred while deleting the " + currentModel,
+      error: error.message,
+    });
+  }
+};
+
+/**************************************************************************************************************/
+
 // Delete all Login from the database.
-exports.deleteAll = (req, res) => {
+exports.deleteAll = async (req, res) => {
   logger.trace("Calling Login Delete All Api");
 
-  Login.destroy({
+  await Login.destroy({
     where: {},
-    truncate: false,
   })
     .then((nums) => {
       res.send({ message: `${nums} Login were deleted successfully!` });
@@ -179,23 +264,6 @@ exports.deleteAll = (req, res) => {
       res.status(500).send({
         message:
           err.message || "Some error occurred while removing all Logins.",
-      });
-    });
-};
-
-// Find a single Login with an id
-exports.findOne = (req, res) => {
-  logger.trace("Calling Login FindOne Api");
-
-  const username = req.params.username;
-
-  Login.findByPk(username)
-    .then((data) => {
-      res.send(data);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Error retrieving Login with username=" + username,
       });
     });
 };

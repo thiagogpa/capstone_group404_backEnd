@@ -4,7 +4,7 @@ const {
   DB_SCHEMA,
   DB_USERNAME,
   DB_PASSWORD,
-  DB_LOG_SEQUELIZE
+  DB_LOG_SEQUELIZE,
 } = require("../../config");
 
 const Sequelize = require("sequelize");
@@ -22,12 +22,12 @@ const sequelize = new Sequelize(DB_SCHEMA, DB_USERNAME, DB_PASSWORD, {
   },
 
   define: {
+    paranoid: true,
     freezeTableName: false,
-    timestamps: false, // createAt and updateAt columns
-    underscored: true
+    timestamps: true, // createAt and updateAt columns
+    underscored: true,
   },
 });
-
 
 // Connect all the models/tables in the database to a db object,
 //so everything is accessible via one object
@@ -59,7 +59,7 @@ db.users.hasMany(db.orders);
 db.orders.belongsTo(db.orderStatus);
 db.orderStatus.hasMany(db.orders);
 
-db.orders.belongsToMany(db.bins, { through: 'OrdersBins' });
-db.bins.belongsToMany(db.orders, { through: 'OrdersBins' });
+db.orders.belongsToMany(db.bins, { through: "OrdersBins" });
+db.bins.belongsToMany(db.orders, { through: "OrdersBins" });
 
 module.exports = db;
