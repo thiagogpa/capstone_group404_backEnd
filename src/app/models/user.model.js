@@ -1,4 +1,6 @@
 module.exports = (sequelize, Sequelize) => { 
+  const { DataTypes } = require("sequelize"); // Import the built-in data types
+
   const User = sequelize.define("user", {
     id: {
       type: Sequelize.INTEGER,
@@ -50,6 +52,10 @@ module.exports = (sequelize, Sequelize) => {
         },
         isEmail: true,
       },
+    },
+    staff: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
     },
   });
 

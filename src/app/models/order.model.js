@@ -39,6 +39,10 @@ module.exports = (sequelize, Sequelize) => {
           isFloat: { msg: "Taxes must be provided" },
         },
       },
+      status: {
+        type: DataTypes.ENUM,
+        values: ['finished', 'initial']
+      },
     }
   );
 

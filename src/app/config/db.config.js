@@ -38,16 +38,12 @@ db.sequelize = sequelize;
 
 //Models/tables
 db.users = require("../models/user.model")(sequelize, Sequelize);
-db.profiles = require("../models/profile.model")(sequelize, Sequelize);
 db.logins = require("../models/login.model")(sequelize, Sequelize);
 db.addresses = require("../models/address.model")(sequelize, Sequelize);
-db.orderStatus = require("../models/order.status")(sequelize, Sequelize);
 db.orders = require("../models/order.model")(sequelize, Sequelize);
 db.bins = require("../models/bin.model")(sequelize, Sequelize);
 
 //Relations
-db.profiles.hasMany(db.users);
-db.users.belongsTo(db.profiles);
 db.users.hasOne(db.logins);
 db.logins.belongsTo(db.users);
 db.addresses.belongsTo(db.users);
@@ -56,8 +52,8 @@ db.users.hasMany(db.addresses);
 db.orders.belongsTo(db.users);
 db.users.hasMany(db.orders);
 
-db.orders.belongsTo(db.orderStatus);
-db.orderStatus.hasMany(db.orders);
+db.orders.belongsTo(db.addresses);
+db.addresses.hasOne(db.orders);
 
 db.orders.belongsToMany(db.bins, { through: "OrdersBins" });
 db.bins.belongsToMany(db.orders, { through: "OrdersBins" });

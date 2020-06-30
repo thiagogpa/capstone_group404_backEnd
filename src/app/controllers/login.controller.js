@@ -21,12 +21,10 @@ exports.create = async (req, res) => {
     return;
   }
 
-  const isStaff = req.body.staff;
-
   // Creates a Login
   let newLogin = {
     username: req.body.login.username,
-    password: req.body.login.password,
+    password: req.body.login.password,    
     userId: null,
   };
 
@@ -35,12 +33,12 @@ exports.create = async (req, res) => {
     lastName: req.body.user.lastName,
     phone: req.body.user.phone,
     email: req.body.user.email,
-    profileId: req.body.user.profileId,
+    staff: req.body.user.staff,
   };
 
   //Address is only necessary if the new Login is not part of staff
   let newAddress;
-  if (isStaff !== true) {
+  if (newUser.staff !== true) {
     newAddress = {
       street: req.body.address.street,
       numberStreet: req.body.address.numberStreet,
@@ -74,7 +72,7 @@ exports.create = async (req, res) => {
         newLogin.userId = data.id;
       });
 
-      if (!isStaff) {
+      if (!newUser.staff) {
         logger.debug("Creating address");
         currentModel = "Address";
         newAddress.userId = newLogin.userId;
@@ -116,11 +114,6 @@ exports.findAll = async (req, res) => {
       include: [
         {
           model: db.users,
-          include: [
-            {
-              model: db.profiles,
-            },
-          ],
         },
       ],
     })
@@ -161,7 +154,6 @@ exports.findOne = async (req, res) => {
     ],
   })
     .then((data) => {
-      logger.debug("here 1");
       if (data) res.send(data);
       else
         res.status(404).send({
@@ -169,7 +161,6 @@ exports.findOne = async (req, res) => {
         });
     })
     .catch((err) => {
-      logger.debug("here 2");
       res.status(500).send({
         message: "Error retrieving Login with username = " + username,
         error: err.error,
