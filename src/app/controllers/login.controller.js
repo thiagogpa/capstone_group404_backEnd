@@ -24,7 +24,7 @@ exports.create = async (req, res) => {
   // Creates a Login
   let newLogin = {
     username: req.body.login.username,
-    password: req.body.login.password,    
+    password: req.body.login.password,
     userId: null,
   };
 
@@ -241,20 +241,53 @@ exports.delete = async (req, res) => {
 
 /**************************************************************************************************************/
 
-// Delete all Login from the database.
-exports.deleteAll = async (req, res) => {
-  logger.trace("Calling Login Delete All Api");
+// Update a Bin by the id in the request
+exports.update = async (req, res) => {
+  logger.trace("Calling Login update Api");
 
-  await Login.destroy({
-    where: {},
-  })
-    .then((nums) => {
-      res.send({ message: `${nums} Login were deleted successfully!` });
+  const username = req.params.username;
+
+  // Creates a Login
+  let loginForUpdate = {
+    password: req.body.password,
+  };
+
+  const saltRounds = 10;
+  await bcrypt
+    .genSalt(saltRounds)
+    .then((salt) => {
+      return bcrypt.hash(loginForUpdate.password, salt);
+    })
+    .then((hash) => {
+      loginForUpdate.password = hash;
     })
     .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while removing all Logins.",
+      logger.error(`Error while creating hash: ${err.message}`);
+    });
+
+  try {
+    await db.sequelize.transaction(async (t) => {
+      logger.debug("Updating user");
+      await Login.update(loginForUpdate, {
+        where: { username: username },
+      }).then((num) => {
+        if (num == 1) {
+          res.send({
+            message: "Login was updated successfully.",
+          });
+        } else {
+          res.send({
+            message: `Cannot update username = ${id}. Maybe Login was not found or req.body is empty!`,
+          });
+        }
       });
     });
+  } catch (error) {
+    // If the execution reaches this line, an error occurred.
+    // The transaction has already been rolled back automatically by Sequelize!
+    res.status(500).send({
+      message: "Some error occurred while updating the login",
+      error: error.message,
+    });
+  }
 };

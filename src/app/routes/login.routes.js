@@ -25,13 +25,12 @@ module.exports = (app) => {
       res.json(await login.delete(req, res));
     });
 
-    // Delete all logins    
-    router.delete("/", async (req, res) => {
-      res.json(await login.deleteAll(req, res));
+    // Update a Login by username
+    router.put("/:username", async (req, res) => {
+      res.json(await login.update(req, res));
     });
 
     app.use("/api/login", router);
-
   } catch (error) {
     logger.error("Error while calling API: " + error.message);
   }
