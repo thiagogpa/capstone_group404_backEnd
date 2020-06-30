@@ -3,7 +3,6 @@ module.exports = (sequelize, Sequelize) => {
   
   const Profile = sequelize.define("profile", {
     id: {
-      field: "id",
       type: Sequelize.INTEGER,
       autoIncrement: true,
       allowNull: false,

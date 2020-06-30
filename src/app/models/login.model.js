@@ -1,5 +1,4 @@
 module.exports = (sequelize, Sequelize) => {
-  const User = require("./user.model")(sequelize, Sequelize);
 
   const Login = sequelize.define("login", {
     username: {
@@ -15,13 +14,6 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
   });
-
-  /* TEST THIAGO
-  Login.belongsTo(User, {
-    foreignKey: "user_id",
-  });
-
-  */
 
   return Login;
 };

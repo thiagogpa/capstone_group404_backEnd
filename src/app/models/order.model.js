@@ -1,14 +1,10 @@
 module.exports = (sequelize, Sequelize) => {
   const { DataTypes } = require("sequelize"); // Import the built-in data types
-
-  const Client = require("./client.model")(sequelize, Sequelize);
-  const OrderStatus = require("./order.status")(sequelize, Sequelize);
-
+  
   const Order = sequelize.define(
     "order",
     {
       orderDate: {
-        field: "order_date",
         type: DataTypes.DATE,
         allowNull: false,
         validate: {
@@ -16,7 +12,6 @@ module.exports = (sequelize, Sequelize) => {
         },
       },
       dropOffDate: {
-        field: "drop_off_date",
         type: DataTypes.DATE,
         allowNull: false,
         validate: {
@@ -24,7 +19,6 @@ module.exports = (sequelize, Sequelize) => {
         },
       },
       pickUpDate: {
-        field: "pick_up_date",
         type: DataTypes.DATE,
         allowNull: false,
         validate: {
@@ -47,14 +41,6 @@ module.exports = (sequelize, Sequelize) => {
       },
     }
   );
-
-  Order.belongsTo(Client, {
-    foreignKey: "client_id",
-  });
-
-  Order.belongsTo(OrderStatus, {
-    foreignKey: "status_id",
-  });
 
   return Order;
 };

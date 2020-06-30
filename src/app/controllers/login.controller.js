@@ -1,12 +1,14 @@
-const db = require("../models");
-const Login = db.login;
+const db = require("../config/db.config");
+const Login = db.logins;
+const User = db.users;
+const Address = db.addresses;
 const Op = db.Sequelize.Op;
 const { logger } = require("../config/logger");
 
 const bcrypt = require("bcrypt");
 
 // Create and Save a new Login
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
   logger.trace("Calling Login Creation Api");
 
   // Validate request
@@ -18,52 +20,117 @@ exports.create = (req, res) => {
   }
 
   // Creates a Login
-  const login = {
-    username: req.body.username,
-    password: req.body.password,
+  let newLogin = {
+    username: req.body.login.username,
+    password: req.body.login.password,
+    userId: null,
   };
 
+  let newUser = {
+    firstName: req.body.user.firstName,
+    lastName: req.body.user.lastName,
+    phone: req.body.user.phone,
+    email: req.body.user.email,
+    profileId: req.body.user.profileId,
+  };
+
+  let newAddress = {
+    street: req.body.address.street,
+    numberStreet: req.body.address.numberStreet,
+    city: req.body.address.city,
+    province: req.body.address.province,
+    zipcode: req.body.address.zipcode,
+    userId: null,
+  };
+
+  const isStaff = req.body.staff;
+
   const saltRounds = 10;
-  bcrypt
+  await bcrypt
     .genSalt(saltRounds)
     .then((salt) => {
-      return bcrypt.hash(login.password, salt);
+      return bcrypt.hash(newLogin.password, salt);
     })
     .then((hash) => {
-      login.password = hash;
-
-      // Save Login in the database
-      Login.create(login)
-        .then((data) => {
-          res.send(data);
-        })
-        .catch((err) => {
-          res.status(500).send({
-            message:
-              err.message || "Some error occurred while creating the Login.",
-          });
-        });
+      newLogin.password = hash;
     })
-    .catch((err) => console.error(err.message));
+    .catch((err) => {
+      logger.error(`Error while creating hash: ${err.message}`);
+    });
+
+  let currentModel = null;
+  try {
+    currentModel = "User";
+    await db.sequelize.transaction(async (t) => {
+      // Save Login in the database
+      await User.create(newUser, { transaction: t }).then((data) => {
+        newLogin.userId = data.id;
+        newAddress.userId = data.id;
+      });
+
+      if (!isStaff) {
+        currentModel = "Address";
+        // Save Address in the database
+        await Address.create(newAddress, { transaction: t });
+      }
+
+      currentModel = "Login";
+      // Save Login in the database
+      await Login.create(newLogin, { transaction: t }).then((data) => {
+        res.send(data);
+      });
+    });
+  } catch (error) {
+    // If the execution reaches this line, an error occurred.
+    // The transaction has already been rolled back automatically by Sequelize!
+    res.status(500).send({
+      message: "Some error occurred while creating the " + currentModel,
+      error: error.message,
+    });
+  }
+
+  logger.trace("DONE Calling Login Creation Api");
 };
 
 // Retrieve all Login from the database.
-exports.findAll = (req, res) => {
+exports.findAll = async (req, res) => {
   logger.trace("Calling Login FindAll Api");
 
-  const title = req.query.title;
-  var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
+  //If the username is provided it gets based on that, otherwise it gets all the users
+  const username = req.body.username;
+  var condition = username ? { username: { [Op.eq]: `${username}` } } : null;
 
-  Login.findAll({ where: condition })
-    .then((data) => {
-      res.send(data);
+  try {
+    await Login.findAll({
+      where: condition,
+      include: [
+        {
+          model: db.users,
+          include: [
+            {              
+              model: db.addresses
+            },
+          ],
+
+        },
+      ],
     })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "Some error occurred while retrieving Login.",
+      .then((data) => {
+        res.send(data);
+      })
+      .catch((err) => {
+        res.status(500).send({
+          message: err.message || "Some error occurred while retrieving Login.",
+        });
       });
+  } catch (error) {
+    res.status(500).send({
+      message: "Some error occurred while trying to retrieve the data",
+      error: error.message,
     });
+  }
 };
+
 
 // Delete a Login with the specified id in the request
 exports.delete = (req, res) => {

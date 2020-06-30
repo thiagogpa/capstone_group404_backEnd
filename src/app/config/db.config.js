@@ -4,23 +4,62 @@ const {
   DB_SCHEMA,
   DB_USERNAME,
   DB_PASSWORD,
+  DB_LOG_SEQUELIZE
 } = require("../../config");
 
-module.exports = {
-  HOST: DB_HOST,
-  USER: DB_USERNAME,
-  PASSWORD: DB_PASSWORD,
-  DB: DB_SCHEMA,
+const Sequelize = require("sequelize");
+const sequelize = new Sequelize(DB_SCHEMA, DB_USERNAME, DB_PASSWORD, {
+  logging: JSON.parse(DB_LOG_SEQUELIZE),
+  host: DB_HOST,
   dialect: "mysql",
+  operatorsAliases: false,
+
   pool: {
     max: 100,
     min: 0,
     acquire: 30000,
     idle: 10000,
   },
-  // global model definitions
+
   define: {
     freezeTableName: false,
     timestamps: false, // createAt and updateAt columns
+    underscored: true
   },
-};
+});
+
+
+// Connect all the models/tables in the database to a db object,
+//so everything is accessible via one object
+const db = {};
+
+db.Sequelize = Sequelize;
+db.sequelize = sequelize;
+
+//Models/tables
+db.users = require("../models/user.model")(sequelize, Sequelize);
+db.profiles = require("../models/profile.model")(sequelize, Sequelize);
+db.logins = require("../models/login.model")(sequelize, Sequelize);
+db.addresses = require("../models/address.model")(sequelize, Sequelize);
+db.orderStatus = require("../models/order.status")(sequelize, Sequelize);
+db.orders = require("../models/order.model")(sequelize, Sequelize);
+db.bins = require("../models/bin.model")(sequelize, Sequelize);
+
+//Relations
+db.profiles.hasMany(db.users);
+db.users.belongsTo(db.profiles);
+db.users.hasOne(db.logins);
+db.logins.belongsTo(db.users);
+db.addresses.belongsTo(db.users);
+db.users.hasMany(db.addresses);
+
+db.orders.belongsTo(db.users);
+db.users.hasMany(db.orders);
+
+db.orders.belongsTo(db.orderStatus);
+db.orderStatus.hasMany(db.orders);
+
+db.orders.belongsToMany(db.bins, { through: 'OrdersBins' });
+db.bins.belongsToMany(db.orders, { through: 'OrdersBins' });
+
+module.exports = db;

@@ -4,13 +4,31 @@ module.exports = (app) => {
   var router = require("express").Router();
 
   // Create a new Logins
-  router.post("/", login.create);
+  
+  router.post("/", async (req, res) => {
+    try {
+      res.json(
+        await login.create(req, res),
+      );
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+
+  });
+
 
   // Retrieve all Logins
-  router.get("/", login.findAll);
+  router.get("/", async (req, res) => {
+    try {
+      res.json(
+        await login.findAll(req, res),
+      );
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
 
-  // Authenticate using username
-  //router.get("/authenticate", login.authenticate);
+  });
+
 
   // Retrieve a single Login with username
   router.get("/:username", login.findOne);

@@ -1,4 +1,4 @@
-const db = require("../models");
+const db = require("../config/db.config");
 const Login = db.login;
 const { logger } = require("../config/logger");
 const bcrypt = require("bcrypt");

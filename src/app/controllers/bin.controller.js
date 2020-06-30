@@ -1,5 +1,5 @@
-const db = require("../models");
-const Bin = db.bin;
+const db = require("../config/db.config");
+const Bin = db.bins;
 const Op = db.Sequelize.Op;
 const { logger } = require("../config/logger");
 
@@ -22,6 +22,7 @@ exports.create = (req, res) => {
     sizeWide: req.body.sizeWide,
     dailyCost: req.body.dailyCost,
     description: req.body.description,
+    available: req.body.available,
   };
 
   // Save Bin in the database

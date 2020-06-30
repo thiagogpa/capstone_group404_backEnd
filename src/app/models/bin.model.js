@@ -3,7 +3,6 @@ module.exports = (sequelize, Sequelize) => {
 
   const Bin = sequelize.define("bin", {
     sizeLong: {
-      field: "size_long",
       type: Sequelize.INTEGER,
       allowNull: false,
       validate: {
@@ -11,7 +10,6 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
     sizeHeight: {
-      field: "size_height",
       type: Sequelize.INTEGER,
       allowNull: false,
       validate: {
@@ -19,7 +17,6 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
     sizeWide: {
-      field: "size_wide",
       type: Sequelize.INTEGER,
       allowNull: false,
       validate: {
@@ -27,7 +24,6 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
     dailyCost: {
-      field: "daily_cost",
       type: DataTypes.DOUBLE,
       allowNull: false,
       validate: {
@@ -44,6 +40,10 @@ module.exports = (sequelize, Sequelize) => {
           msg: "Description cannot have more than 30 characters.",
         },
       },
+    },
+    available: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
     },
   });
 

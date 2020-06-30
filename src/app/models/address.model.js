@@ -1,7 +1,7 @@
 module.exports = (sequelize, Sequelize) => {
+
   const Address = sequelize.define("address", {
     id: {
-      field: "id",
       type: Sequelize.INTEGER,
       autoIncrement: true,
       allowNull: false,
@@ -18,7 +18,7 @@ module.exports = (sequelize, Sequelize) => {
         },
       },
     },
-    numberStreet: {
+    numberStreet: {      
       type: Sequelize.STRING,
       allowNull: false,
       validate: {
@@ -59,6 +59,9 @@ module.exports = (sequelize, Sequelize) => {
         len: { args: [0, 6], msg: "City cannot have more than 6 characters." },
       },
     },
+  },
+  {
+    timestamps: true,
   });
 
   return Address;

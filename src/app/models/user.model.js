@@ -1,16 +1,12 @@
-module.exports = (sequelize, Sequelize) => {
-  const Profile = require("./profile.model")(sequelize, Sequelize);
-
+module.exports = (sequelize, Sequelize) => { 
   const User = sequelize.define("user", {
     id: {
-      field: "id",
       type: Sequelize.INTEGER,
       autoIncrement: true,
       allowNull: false,
       primaryKey: true,
     },
     firstName: {
-      field: "first_name",
       type: Sequelize.STRING,
       allowNull: false,
       validate: {
@@ -22,7 +18,6 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
     lastName: {
-      field: "last_name",
       type: Sequelize.STRING,
       allowNull: false,
       validate: {
@@ -55,16 +50,7 @@ module.exports = (sequelize, Sequelize) => {
         },
         isEmail: true,
       },
-      unique: {
-        name: "email_UNIQUE",
-        args: true,
-        msg: "Customer email is already in use. Choose another one.",
-      },
     },
-  });
-
-  Profile.hasMany(User, {
-    foreignKey: "profile_id",
   });
 
   return User;
