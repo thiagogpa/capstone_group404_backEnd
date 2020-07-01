@@ -14,6 +14,8 @@ const express = require("express"),
   cookieParser = require("cookie-parser"),
   db = require("./app/config/db.config");
 
+const   iniLoader = require("./app/initialload/initialDataLoad");
+
 app.use(cookieParser());
 
 var corsOptions = {
@@ -32,6 +34,10 @@ if (JSON.parse(DB_RESET_ON_SERVER_START)) {
   // drops the tables and recreate them
   db.sequelize.sync({ force: true }).then(() => {
     console.log("Drop and re-sync db done.");
+    //load data
+    iniLoader.loadBins();
+    console.log("...data loaded");
+
   });
 } else {
   // only syncronizes the tables
@@ -50,5 +56,6 @@ require("./app/routes/routes")(app);
 var server = app.listen(SERVER_PORT, () => {
   logger.info(`Server is running on port ${SERVER_PORT}.`);
 });
+
 
 module.exports = server;

@@ -8,22 +8,25 @@ exports.create = (req, res) => {
   logger.trace('Calling Bin Creation Api');
 
   // Validate request
-  if (!req.body) {
-    res.status(400).send({
-      message: "Content can not be empty!",
-    });
-    return;
-  }
+    if (!req.body) {
+      res.status(400).send({
+        message: "Content can not be empty!",
+      });
+      return;
+    }
 
-  // Create a Bin
-  const bin = {
-    sizeLong: req.body.sizeLong,
-    sizeHeight: req.body.sizeHeight,
-    sizeWide: req.body.sizeWide,
-    dailyCost: req.body.dailyCost,
-    description: req.body.description,
-    available: req.body.available,
-  };
+    // Create a Bin
+    const bin = {
+      wasteType: req.body.sizeLong,
+      sizeLong: req.body.sizeLong,
+      sizeHeight: req.body.sizeHeight,
+      sizeWide: req.body.sizeWide,
+      dailyCost: req.body.dailyCost,
+      description: req.body.description,
+      available: req.body.available,
+      picture:req.body.picture,
+
+    };
 
   // Save Bin in the database
   Bin.create(bin)
