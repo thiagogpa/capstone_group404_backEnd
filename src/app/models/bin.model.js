@@ -50,7 +50,11 @@ module.exports = (sequelize, Sequelize) => {
     },
     available: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
+    },
+    amount: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
     },
     picture: {
       type: DataTypes.STRING,

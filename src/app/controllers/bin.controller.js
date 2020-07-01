@@ -24,6 +24,7 @@ exports.create = (req, res) => {
       dailyCost: req.body.dailyCost,
       description: req.body.description,
       available: req.body.available,
+      amount: req.body.available,
       picture:req.body.picture,
 
     };
