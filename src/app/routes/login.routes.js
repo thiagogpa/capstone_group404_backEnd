@@ -1,4 +1,7 @@
 const { logger } = require("../config/logger");
+const withAuth = require("../middleware/middleware");
+const withStaffAuth = require("../middleware/middlewareStaff");
+
 
 module.exports = (app) => {
   const login = require("../controllers/login.controller");
@@ -21,7 +24,7 @@ module.exports = (app) => {
     });
 
     // Delete a Login by username
-    router.delete("/:username", async (req, res) => {
+    router.delete("/:username", withStaffAuth, async (req, res) => {
       res.json(await login.delete(req, res));
     });
 

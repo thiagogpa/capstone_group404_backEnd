@@ -172,7 +172,7 @@ exports.findOne = async (req, res) => {
 
 // Delete a Login with the specified id in the request
 exports.delete = async (req, res) => {
-  logger.trace("Calling Login Delete Api");
+  logger.trace("Calling Login Delete Api");  
 
   const username = req.params.username;
 

@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
-const { PUBLIC_KEY, PRIVATE_KEY } = require("./../../config");
+const { PUBLIC_KEY, PRIVATE_KEY } = require("../../config");
 const { logger } = require("../config/logger");
 
-const withAuth = function (req, res, next) {
+const withStaffAuth = function (req, res, next) {
   const token =
     req.body.token ||
     req.query.token ||
@@ -19,10 +19,19 @@ const withAuth = function (req, res, next) {
         req.username = decoded.providedUsername;
         req.staff = decoded.staff;
 
-        next();
+        if (!req.staff) {
+          res
+            .status(401)
+            .send({
+              message:
+                "Unauthorized: You are not allowed to perform this operation",
+            });
+        } else {
+          next();
+        }
       }
     });
   }
 };
 
-module.exports = withAuth;
+module.exports = withStaffAuth;
