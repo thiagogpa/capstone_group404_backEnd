@@ -17,10 +17,17 @@ exports.authenticate = (req, res) => {
 
   const { username: providedUsername, password: providedPassword } = req.body;
 
-  Login.findByPk(providedUsername)
+  Login.findByPk(providedUsername, {
+    include: [
+      {
+        model: db.users,
+      },
+    ],
+  })
     .then((data) => {
       //it means it ran successfully, but its still necessary to check if the user was found
       if (data != null) {
+        let staff = data.user.staff;
         //Will try to match the provided password with the hash
         bcrypt
           .compare(providedPassword, data.password)
@@ -29,7 +36,7 @@ exports.authenticate = (req, res) => {
             if (match) {
               //Password DID match / Issue token
               logger.debug("CREATING COOKIE");
-              const payload = { providedUsername };
+              const payload = { staff, providedUsername };
               const token = jwt.sign(payload, PRIVATE_KEY, {
                 expiresIn: "1h",
               });
