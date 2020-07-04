@@ -4,6 +4,7 @@ module.exports = {
   NODE_ENV: process.env.NODE_ENV,
   SERVER_PORT: process.env.SERVER_PORT,
   SERVER_NAME: process.env.SERVER_NAME,
+  FRONTEND_DOMAIN: process.env.FRONTEND_DOMAIN,
 
   SERVER_LOG_LEVEL: process.env.SERVER_LOG_LEVEL,
   SERVER_LOG_CATEGORY: process.env.SERVER_LOG_CATEGORY,

@@ -1,6 +1,7 @@
 const {
+  FRONTEND_DOMAIN,
+  NODE_ENV,
   SERVER_PORT,
-  SERVER_NAME,
   DB_RESET_ON_SERVER_START,
 } = require("./config");
 
@@ -9,17 +10,18 @@ const { logger } = require("./app/config/logger");
 const express = require("express"),
   bodyParser = require("body-parser"),
   cors = require("cors"),
-  app = express(),
-  withAuth = require("./app/middleware/middleware"),
-  cookieParser = require("cookie-parser"),
-  db = require("./app/config/db.config");
-
-const   iniLoader = require("./app/initialload/initialDataLoad");
+  app = express();
+(withAuth = require("./app/middleware/middleware")),
+  (cookieParser = require("cookie-parser")),
+  (db = require("./app/config/db.config"));
 
 app.use(cookieParser());
 
 var corsOptions = {
-  origin: `${SERVER_NAME}:${SERVER_PORT}`,
+  origin: `${FRONTEND_DOMAIN}`,
+  methods: "GET,HEAD,POST,PATCH,DELETE,OPTIONS",
+  credentials: true, // required to pass
+  allowedHeaders: "Content-Type, Authorization, X-Requested-With",
 };
 
 app.use(cors(corsOptions));
@@ -34,15 +36,15 @@ if (JSON.parse(DB_RESET_ON_SERVER_START)) {
   // drops the tables and recreate them
   db.sequelize.sync({ force: true }).then(() => {
     console.log("Drop and re-sync db done.");
-    //load data
-    iniLoader.loadBins();
-    console.log("...data loaded");
-
   });
 } else {
   // only syncronizes the tables
   db.sequelize.sync();
 }
+
+app.get("/", function (req, res) {
+  return res.send("Server is up !");
+});
 
 app.get("/checkToken", withAuth, function (req, res) {
   logger.trace("CheckToken API");
@@ -53,9 +55,9 @@ app.get("/checkToken", withAuth, function (req, res) {
 require("./app/routes/routes")(app);
 
 // set port, listen for requests
-var server = app.listen(SERVER_PORT, () => {
-  logger.info(`Server is running on port ${SERVER_PORT}.`);
+var port = process.env.PORT || SERVER_PORT;
+var server = app.listen(port, () => {
+  logger.info(`Server started on port=${port} environment=${NODE_ENV}.`);
 });
-
 
 module.exports = server;
