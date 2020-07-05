@@ -17,7 +17,7 @@ exports.create = (req, res) => {
 
     // Create a Bin
     const bin = {
-      wasteType: req.body.sizeLong,
+      wasteType: req.body.wasteType,
       sizeLong: req.body.sizeLong,
       sizeHeight: req.body.sizeHeight,
       sizeWide: req.body.sizeWide,
@@ -45,8 +45,8 @@ exports.create = (req, res) => {
 exports.findAll = (req, res) => {
   logger.trace('Calling Bin FindAll Api');
 
-  const title = req.query.title;
-  var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
+ const title = req.query.title;
+ var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
 
   Bin.findAll({ where: condition })
     .then((data) => {
@@ -58,6 +58,11 @@ exports.findAll = (req, res) => {
       });
     });
 };
+
+
+
+
+
 
 // Find a single Bin with an id
 exports.findOne = (req, res) => {
