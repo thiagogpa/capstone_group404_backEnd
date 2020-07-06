@@ -19,7 +19,7 @@ app.use(cookieParser());
 
 var corsOptions = {
   origin: `${FRONTEND_DOMAIN}`,
-  methods: "GET,HEAD,POST,PATCH,DELETE,OPTIONS",
+  methods: "GET,HEAD,POST,PATCH,DELETE,OPTIONS,PUT",
   credentials: true, // required to pass
   allowedHeaders: "Content-Type, Authorization, X-Requested-With",
 };
