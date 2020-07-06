@@ -4,7 +4,7 @@ const Op = db.Sequelize.Op;
 const { logger } = require("../config/logger");
 
 // Create and Save a new Bin
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
   logger.trace('Calling Bin Creation Api');
 
   // Validate request
@@ -26,7 +26,6 @@ exports.create = (req, res) => {
       available: req.body.available,
       amount: req.body.available,
       picture:req.body.picture,
-
     };
 
   // Save Bin in the database
@@ -42,7 +41,7 @@ exports.create = (req, res) => {
 };
 
 // Retrieve all Bin from the database.
-exports.findAll = (req, res) => {
+exports.findAll = async (req, res) => {
   logger.trace('Calling Bin FindAll Api');
 
  const title = req.query.title;
@@ -59,13 +58,8 @@ exports.findAll = (req, res) => {
     });
 };
 
-
-
-
-
-
 // Find a single Bin with an id
-exports.findOne = (req, res) => {
+exports.findOne = async (req, res) => {
   logger.trace('Calling Bin FindOne Api');
 
   const id = req.params.id;
@@ -82,7 +76,7 @@ exports.findOne = (req, res) => {
 };
 
 // Update a Bin by the id in the request
-exports.update = (req, res) => {
+exports.update = async (req, res) => {
   logger.trace('Calling Bin update Api');
 
   const id = req.params.id;
@@ -109,7 +103,7 @@ exports.update = (req, res) => {
 };
 
 // Delete a Bin with the specified id in the request
-exports.delete = (req, res) => {
+exports.delete = async (req, res) => {
   logger.trace('Calling Bin Delete Api');
 
   const id = req.params.id;
@@ -136,7 +130,7 @@ exports.delete = (req, res) => {
 };
 
 // Delete all Bin from the database.
-exports.deleteAll = (req, res) => {
+exports.deleteAll = async (req, res) => {
   logger.trace('Calling Bin Delete All Api');
 
   Bin.destroy({
@@ -154,7 +148,7 @@ exports.deleteAll = (req, res) => {
 };
 
 // find all published Bin ***** THIS IS AN EXAMPLE IT WILL NOT WORK WITH THIS DATABASE
-exports.findAllPublished = (req, res) => {
+exports.findAllPublished = async (req, res) => {
   logger.trace('Calling Bin FindAll Api');
 
   Bin.findAll({ where: { published: true } })

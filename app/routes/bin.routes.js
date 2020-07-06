@@ -1,28 +1,50 @@
+const { logger } = require("../config/logger");
+const withAuth = require("../middleware/middleware");
+const withStaffAuth = require("../middleware/middlewareStaff");
+
 module.exports = app => {
   const bin = require("../controllers/bin.controller");
-
   var router = require("express").Router();
 
-  // Create a new Bin
-  router.post("/", bin.create);
+  try {
 
-  // Retrieve all Bin
-  router.get("/", bin.findAll);
+    // Create a new Bin
+    router.post("/", async (req, res) => {
+      res.json(await bin.create(req, res));
+    });
 
-  // Retrieve all published Bin
-  router.get("/published", bin.findAllPublished);
+    // Retrieve all Bin
+    router.get("/", async (req, res) => {
+      res.json(await bin.findAll(req, res));
+    });
 
-  // Retrieve a single Bin with id
-  router.get("/:id", bin.findOne);
+    // Retrieve all published Bin
+    router.get("/published", async (req, res) => {
+      res.json(await bin.findAllPublished(req, res));
+    });
 
-  // Update a Bin with id
-  router.put("/:id", bin.update);
+    // Retrieve a single Bin with id
+    router.get("/:id", async (req, res) => {
+      res.json(await bin.findOne(req, res));
+    });
 
-  // Delete a Bin with id
-  router.delete("/:id", bin.delete);
+    // Update a Bin with id
+    router.put("/:id", async (req, res) => {
+      res.json(await bin.update(req, res));
+    });
 
-  // Create a new Bin
-  router.delete("/", bin.deleteAll);
+    // Delete a Bin with id
+    router.delete("/:id", withAuth, async (req, res) => {
+      res.json(await bin.delete(req, res));
+    });
 
-  app.use('/api/bin', router);
+    // Create a new Bin
+    router.delete("/", async (req, res) => {
+      res.json(await bin.deleteAll(req, res));
+    });
+
+    app.use('/api/bin', router);
+  } catch (error) {
+    logger.error("Error while calling API: " + error.message);
+  }
 };

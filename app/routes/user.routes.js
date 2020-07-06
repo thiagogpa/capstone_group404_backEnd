@@ -18,6 +18,8 @@ module.exports = (app) => {
       res.json(await user.findOne(req, res));
     });
 
+    
+
     app.use("/api/user", router);
   } catch (error) {
     logger.error("Error while calling API: " + error.message);
