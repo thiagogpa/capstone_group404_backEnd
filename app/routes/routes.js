@@ -5,4 +5,5 @@ module.exports = (app) => {
   require("./bin.routes")(app);
   require("./login.routes")(app);
   require("./faq.routes")(app);
+  require("./user.routes")(app);
 };
