@@ -21,7 +21,43 @@ exports.findAll = async (req, res) => {
     ],
   })
     .then((data) => {
+      const resObj = data.map((user) => {
+        //tidy up the user data
+        return Object.assign(
+          {},
+          {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            phone: user.phone,
+            email: user.email,
+            staff: user.staff,            
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+            deletedAt: user.deletedAt,
+            addresses: user.addresses.map((addresses) => {
+              //tidy up the post data
+              return Object.assign(
+                {},
+                {
+                  id: addresses.id,
+                  street: addresses.street,
+                  numberStreet: addresses.numberStreet,
+                  city: addresses.city,
+                  province: addresses.province,
+                  zipcode: addresses.zipcode,
+                  createdAt: addresses.createdAt,
+                  updatedAt: addresses.updatedAt,
+                  deletedAt: addresses.deletedAt,                  
+                }
+              );
+            }),
+          }
+        );
+      });
       res.send(data);
+
+      //res.send(data);
     })
     .catch((err) => {
       res.status(500).send({

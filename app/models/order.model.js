@@ -41,7 +41,7 @@ module.exports = (sequelize, Sequelize) => {
       },
       status: {
         type: DataTypes.ENUM,
-        values: ['finished', 'initial']
+        values: ['In progress', 'Delivered', 'Complete']
       },
     }
   );

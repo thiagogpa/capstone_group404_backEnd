@@ -1,31 +1,33 @@
 const db = require("../config/db.config");
 const Order = db.orders;
+const User = db.users;
+const Address = db.addresses;
 const Op = db.Sequelize.Op;
 const { logger } = require("../config/logger");
 
 // Create and Save a new Order
 exports.create = async (req, res) => {
-  logger.trace('Calling Order Creation Api');
+  logger.trace("Calling Order Creation Api");
 
   // Validate request
-    if (!req.body) {
-      res.status(400).send({
-        message: "Content can not be empty!",
-      });
-      return;
-    }
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content can not be empty!",
+    });
+    return;
+  }
 
-    // Create an Order
-    const order = {
-      orderDate: req.body.orderDate,
-      dropOffDate: req.body.dropOffDate,
-      pickUpDate: req.body.pickUpDate,
-      subtotal: req.body.subtotal,
-      taxes: req.body.taxes,
-      status: req.body.status,
-      user_id: req.body.user_id,
-      address_id: req.body.address_id,
-    };
+  // Create an Order
+  const order = {
+    orderDate: req.body.orderDate,
+    dropOffDate: req.body.dropOffDate,
+    pickUpDate: req.body.pickUpDate,
+    subtotal: req.body.subtotal,
+    taxes: req.body.taxes,
+    status: req.body.status,
+    userId: req.body.userId,
+    addressId: req.body.addressId,
+  };
 
   // Save Order in the database
   Order.create(order)
@@ -41,12 +43,12 @@ exports.create = async (req, res) => {
 
 // Retrieve all Order records from the database.
 exports.findAll = async (req, res) => {
-  logger.trace('Calling Order FindAll Api');
+  logger.trace("Calling Order FindAll Api");
 
   const title = req.query.title;
   var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
 
-  Order.findAll({ where: condition })
+  Order.findAll({ where: condition, paranoid: false })
     .then((data) => {
       res.send(data);
     })
@@ -59,11 +61,21 @@ exports.findAll = async (req, res) => {
 
 // Find a single Order by its Id
 exports.findOne = async (req, res) => {
-  logger.trace('Calling Order FindOne Api');
+  logger.trace("Calling Order FindOne Api");
 
   const id = req.params.id;
 
-  Order.findByPk(id)
+  Order.findByPk(id, {
+    paranoid: false,
+    include: [
+      {
+        model: User,
+      },
+      {
+        model: Address,
+      },
+    ],
+  })
     .then((data) => {
       res.send(data);
     })
@@ -76,7 +88,7 @@ exports.findOne = async (req, res) => {
 
 // Updates Order by id
 exports.update = async (req, res) => {
-  logger.trace('Calling Order update Api');
+  logger.trace("Calling Order update Api");
 
   const id = req.params.id;
 
@@ -90,7 +102,10 @@ exports.update = async (req, res) => {
         });
       } else {
         res.send({
-          message: "Cannot update Order with id=" + id + ". [Order not found or Id not provided",
+          message:
+            "Cannot update Order with id=" +
+            id +
+            ". [Order not found or Id not provided",
         });
       }
     })
@@ -103,7 +118,7 @@ exports.update = async (req, res) => {
 
 // Deletes an Order by Id
 exports.delete = async (req, res) => {
-  logger.trace('Calling Order Delete Api');
+  logger.trace("Calling Order Delete Api");
 
   const id = req.params.id;
 
@@ -117,7 +132,10 @@ exports.delete = async (req, res) => {
         });
       } else {
         res.send({
-          message: "Cannot delete Order with id=" + id + ". [Order not found or Id not provided",
+          message:
+            "Cannot delete Order with id=" +
+            id +
+            ". [Order not found or Id not provided",
         });
       }
     })
@@ -130,7 +148,7 @@ exports.delete = async (req, res) => {
 
 // Delete all Order entries from the database.
 exports.deleteAll = async (req, res) => {
-  logger.trace('Calling Order Delete All Api');
+  logger.trace("Calling Order Delete All Api");
 
   Order.destroy({
     where: {},
@@ -146,7 +164,7 @@ exports.deleteAll = async (req, res) => {
     });
 };
 
-// // find all published Orders 
+// // find all published Orders
 // exports.findAllPublished = async (req, res) => {
 //   logger.trace('Calling Order FindAll Api');
 
