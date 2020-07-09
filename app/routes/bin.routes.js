@@ -10,37 +10,37 @@ module.exports = app => {
 
     // Create a new Bin
     router.post("/", async (req, res) => {
-      res.json(await bin.create(req, res));
+      await bin.create(req, res);
     });
 
     // Retrieve all Bin
     router.get("/", async (req, res) => {
-      res.json(await bin.findAll(req, res));
+      await bin.findAll(req, res);
     });
 
     // Retrieve all published Bin
     router.get("/published", async (req, res) => {
-      res.json(await bin.findAllPublished(req, res));
+      await bin.findAllPublished(req, res);
     });
 
     // Retrieve a single Bin with id
     router.get("/:id", async (req, res) => {
-      res.json(await bin.findOne(req, res));
+      await bin.findOne(req, res);
     });
 
     // Update a Bin with id
     router.put("/:id", async (req, res) => {
-      res.json(await bin.update(req, res));
+      await bin.update(req, res);
     });
 
     // Delete a Bin with id
     router.delete("/:id", withAuth, async (req, res) => {
-      res.json(await bin.delete(req, res));
+      await bin.delete(req, res);
     });
 
     // Create a new Bin
     router.delete("/", async (req, res) => {
-      res.json(await bin.deleteAll(req, res));
+      await bin.deleteAll(req, res);
     });
 
     app.use('/api/bin', router);

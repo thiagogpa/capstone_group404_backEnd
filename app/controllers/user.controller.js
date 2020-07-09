@@ -13,28 +13,21 @@ exports.findAll = async (req, res) => {
 
   //If the username is provided it gets based on that, otherwise it gets all the users
 
-  try {
-    await User.findAll({
-      include: [
-        {
-          model: Address,
-        },
-      ],
+  await User.findAll({
+    include: [
+      {
+        model: Address,
+      },
+    ],
+  })
+    .then((data) => {
+      res.send(data);
     })
-      .then((data) => {
-        return res.send(data);
-      })
-      .catch((err) => {
-        return res.status(500).send({
-          message: err.message || "Some error occurred while retrieving Users.",
-        });
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving Users.",
       });
-  } catch (error) {
-    return res.status(500).send({
-      message: "Some error occurred while trying to retrieve the data",
-      error: error.message,
     });
-  }
 };
 
 /**************************************************************************************************************/
