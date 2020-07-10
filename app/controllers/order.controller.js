@@ -2,6 +2,7 @@ const db = require("../config/db.config");
 const Order = db.orders;
 const User = db.users;
 const Address = db.addresses;
+const Bins = db.bins;
 const Op = db.Sequelize.Op;
 const { logger } = require("../config/logger");
 
@@ -70,9 +71,15 @@ exports.findOne = async (req, res) => {
     include: [
       {
         model: User,
+        paranoid: false,
       },
       {
         model: Address,
+        paranoid: false,
+      },
+      {
+        model: Bins,
+        paranoid: false,
       },
     ],
   })

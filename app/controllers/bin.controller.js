@@ -1,32 +1,33 @@
 const db = require("../config/db.config");
 const Bin = db.bins;
 const Op = db.Sequelize.Op;
+const { QueryTypes } = require("sequelize");
 const { logger } = require("../config/logger");
 
 // Create and Save a new Bin
 exports.create = async (req, res) => {
-  logger.trace('Calling Bin Creation Api');
+  logger.trace("Calling Bin Creation Api");
 
   // Validate request
-    if (!req.body) {
-      res.status(400).send({
-        message: "Content can not be empty!",
-      });
-      return;
-    }
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content can not be empty!",
+    });
+    return;
+  }
 
-    // Create a Bin
-    const bin = {
-      wasteType: req.body.wasteType,
-      sizeLong: req.body.sizeLong,
-      sizeHeight: req.body.sizeHeight,
-      sizeWide: req.body.sizeWide,
-      dailyCost: req.body.dailyCost,
-      description: req.body.description,
-      available: req.body.available,
-      amount: req.body.available,
-      picture:req.body.picture,
-    };
+  // Create a Bin
+  const bin = {
+    wasteType: req.body.wasteType,
+    sizeLong: req.body.sizeLong,
+    sizeHeight: req.body.sizeHeight,
+    sizeWide: req.body.sizeWide,
+    dailyCost: req.body.dailyCost,
+    description: req.body.description,
+    available: req.body.available,
+    amount: req.body.available,
+    picture: req.body.picture,
+  };
 
   // Save Bin in the database
   Bin.create(bin)
@@ -42,10 +43,10 @@ exports.create = async (req, res) => {
 
 // Retrieve all Bin from the database.
 exports.findAll = async (req, res) => {
-  logger.trace('Calling Bin FindAll Api');
+  logger.trace("Calling Bin FindAll Api");
 
- const title = req.query.title;
- var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
+  const title = req.query.title;
+  var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
 
   Bin.findAll({ where: condition })
     .then((data) => {
@@ -60,7 +61,7 @@ exports.findAll = async (req, res) => {
 
 // Find a single Bin with an id
 exports.findOne = async (req, res) => {
-  logger.trace('Calling Bin FindOne Api');
+  logger.trace("Calling Bin FindOne Api");
 
   const id = req.params.id;
 
@@ -77,7 +78,7 @@ exports.findOne = async (req, res) => {
 
 // Update a Bin by the id in the request
 exports.update = async (req, res) => {
-  logger.trace('Calling Bin update Api');
+  logger.trace("Calling Bin update Api");
 
   const id = req.params.id;
 
@@ -104,7 +105,7 @@ exports.update = async (req, res) => {
 
 // Delete a Bin with the specified id in the request
 exports.delete = async (req, res) => {
-  logger.trace('Calling Bin Delete Api');
+  logger.trace("Calling Bin Delete Api");
 
   const id = req.params.id;
 
@@ -131,7 +132,7 @@ exports.delete = async (req, res) => {
 
 // Delete all Bin from the database.
 exports.deleteAll = async (req, res) => {
-  logger.trace('Calling Bin Delete All Api');
+  logger.trace("Calling Bin Delete All Api");
 
   Bin.destroy({
     where: {},
@@ -149,7 +150,7 @@ exports.deleteAll = async (req, res) => {
 
 // find all published Bin ***** THIS IS AN EXAMPLE IT WILL NOT WORK WITH THIS DATABASE
 exports.findAllPublished = async (req, res) => {
-  logger.trace('Calling Bin FindAll Api');
+  logger.trace("Calling Bin FindAll Api");
 
   Bin.findAll({ where: { published: true } })
     .then((data) => {
@@ -160,4 +161,27 @@ exports.findAllPublished = async (req, res) => {
         message: err.message || "Some error occurred while retrieving Bins.",
       });
     });
+};
+
+// Retrieve all Bin available by date range.
+exports.findAvailable = async (req, res) => {
+  logger.trace("Calling Bin Find Available Api");
+
+  const { dateFrom: dateFrom, dateTo: dateTo } = req.body;
+
+  const select = `SELECT b.*, (b.amount - IFNULL(c.unavailable,0)) as 'totalAvailable' FROM bins b
+    left join (SELECT COUNT(ob.bin_id) as 'unavailable', bin_id FROM orders
+   JOIN ordersbins ob ON orders.id = ob.order_id
+               WHERE (pick_up_date between '${dateFrom}' and '${dateTo}')
+                  or (drop_off_date between '${dateFrom}' and '${dateTo}')
+                  or (drop_off_date <= '${dateFrom}' and pick_up_date >= '${dateTo}')
+   GROUP BY bin_id) c
+   on bin_id = id;`;
+
+  const users = await db.sequelize.query(select, {
+    model: Bin,
+    mapToModel: true,
+  });
+
+  res.send(users);
 };

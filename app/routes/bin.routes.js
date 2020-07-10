@@ -2,12 +2,11 @@ const { logger } = require("../config/logger");
 const withAuth = require("../middleware/middleware");
 const withStaffAuth = require("../middleware/middlewareStaff");
 
-module.exports = app => {
+module.exports = (app) => {
   const bin = require("../controllers/bin.controller");
   var router = require("express").Router();
 
   try {
-
     // Create a new Bin
     router.post("/", async (req, res) => {
       await bin.create(req, res);
@@ -21,6 +20,11 @@ module.exports = app => {
     // Retrieve all published Bin
     router.get("/published", async (req, res) => {
       await bin.findAllPublished(req, res);
+    });
+
+    
+    router.get("/available", async (req, res) => {
+      await bin.findAvailable(req, res);
     });
 
     // Retrieve a single Bin with id
@@ -43,7 +47,7 @@ module.exports = app => {
       await bin.deleteAll(req, res);
     });
 
-    app.use('/api/bin', router);
+    app.use("/api/bin", router);
   } catch (error) {
     logger.error("Error while calling API: " + error.message);
   }
