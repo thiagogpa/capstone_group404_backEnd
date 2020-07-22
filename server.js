@@ -51,6 +51,30 @@ app.get("/checkToken", withAuth, function (req, res) {
   res.sendStatus(200);
 });
 
+
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+//Payment using Stripe
+app.post('/payment', (req, res) => {
+  logger.trace("Calling Stripe Payment API");
+  const body = {
+    source: req.body.stripeToken.id,
+    amount: req.body.amount,
+    currency: 'cad'
+  };
+
+  stripe.charges.create(body, (stripeErr, stripeRes) => {
+    if (stripeErr) {
+      res.status(500).send({ error: stripeErr });
+      logger.debug("Stripe Response 500")
+    } else {
+      res.status(200).send({ success: stripeRes });
+      logger.debug("Stripe Response 200")
+    }
+  });
+});
+
+
 //defines routes
 require("./app/routes/routes")(app);
 
