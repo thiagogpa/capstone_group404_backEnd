@@ -42,6 +42,7 @@ db.logins = require("../models/login.model")(sequelize, Sequelize);
 db.addresses = require("../models/address.model")(sequelize, Sequelize);
 db.orders = require("../models/order.model")(sequelize, Sequelize);
 db.bins = require("../models/bin.model")(sequelize, Sequelize);
+db.ordersBins=require("../models/ordersbins.model")(sequelize, Sequelize);
 
 //Relations
 db.users.hasOne(db.logins);
@@ -55,7 +56,7 @@ db.users.hasMany(db.orders);
 db.orders.belongsTo(db.addresses);
 db.addresses.hasOne(db.orders);
 
-db.orders.belongsToMany(db.bins, { through: "OrdersBins" });
-db.bins.belongsToMany(db.orders, { through: "OrdersBins" });
+db.orders.belongsToMany(db.bins, { through: db.ordersBins });
+db.bins.belongsToMany(db.orders, { through: db.ordersBins });
 
 module.exports = db;
