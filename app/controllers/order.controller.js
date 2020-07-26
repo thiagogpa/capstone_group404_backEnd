@@ -3,6 +3,7 @@ const Order = db.orders;
 const User = db.users;
 const Address = db.addresses;
 const Bins = db.bins;
+const OrdersBins=db.ordersbins;
 const Op = db.Sequelize.Op;
 const { logger } = require("../config/logger");
 
@@ -10,13 +11,19 @@ const { logger } = require("../config/logger");
 exports.create = async (req, res) => {
   logger.trace("Calling Order Creation Api");
 
-  // Validate request
-  if (!req.body) {
-    res.status(400).send({
-      message: "Content can not be empty!",
-    });
-    return;
-  }
+        // Validate request
+        if (!req.body) {
+          res.status(400).send({
+            message: "Content can not be empty!",
+          });
+          return;
+        }else if(!req.body.ordersbins){
+          res.status(400).send({
+            message: "Bins arrray can not be empty!",
+          });
+          return;
+        }
+        
 
   // Create an Order
   const order = {
@@ -28,19 +35,38 @@ exports.create = async (req, res) => {
     status: req.body.status,
     userId: req.body.userId,
     addressId: req.body.addressId,
+    bins:[],
   };
 
-  // Save Order in the database
-  Order.create(order)
-    .then((data) => {
-      res.send(data);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "Error saving Order.",
-      });
-    });
-};
+  req.body.ordersbins.forEach((bin)=>{
+                                order.bins.push({binId:bin.id,selected:bin.selected });
+                              });
+  
+   
+
+                            
+    // Save Order in the database
+    //with assosiations in one transaction 
+    
+    try{
+      const result = await db.sequelize.transaction(async (t)=>{
+          const orderResponse={ordersbins:[]};
+          const o = await Order.create(order,{transaction:t});
+          orderResponse.order=o.dataValues;
+          for(i=0;i<order.bins.length;i++){
+              let bin = order.bins[i];
+                let b = await o.addBins(bin.binId,{ through: { selected: bin.selected },
+                                            transaction:t });
+              orderResponse.ordersbins.push(b);
+          }//for each
+          return orderResponse;
+        }).then(orderResponse =>res.send(orderResponse) )
+        .catch(err=>res.status(500).send({ message: err.message || "Error placing Order.",}));
+  }catch(err){
+    res.status(500).send({ message: err.message || "Error placing Order.",})
+  }
+  };
+
 
 // Retrieve all Order records from the database.
 exports.findAll = async (req, res) => {
@@ -63,9 +89,7 @@ exports.findAll = async (req, res) => {
 // Find a single Order by its Id
 exports.findOne = async (req, res) => {
   logger.trace("Calling Order FindOne Api");
-
   const id = req.params.id;
-
   Order.findByPk(id, {
     paranoid: false,
     include: [
