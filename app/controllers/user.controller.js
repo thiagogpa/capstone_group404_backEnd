@@ -1,6 +1,7 @@
 const db = require("../config/db.config");
 const User = db.users;
 const Address = db.addresses;
+const Login = db.logins;
 const Op = db.Sequelize.Op;
 const { logger } = require("../config/logger");
 
@@ -79,6 +80,9 @@ exports.findOne = async (req, res) => {
       {
         model: Address,
       },
+      {
+        model: Login,
+      },
     ],
   })
     .then((data) => {
@@ -97,3 +101,68 @@ exports.findOne = async (req, res) => {
 };
 
 /**************************************************************************************************************/
+
+// Delete a User with the specified id in the request
+exports.delete = async (req, res) => {
+  logger.trace("Calling User Delete Api");  
+
+  const userID = req.params.id;
+
+  let currentModel = null;
+  try {
+    await db.sequelize.transaction(async (t) => {
+      currentModel = "Login";
+      //Checks if there is a login with that username, otherwise stops here
+
+      currentModel = "Login";
+      await User.findByPk(userID, {
+        include: [
+          {
+            model: Address,
+          },
+          {
+            model: Login,
+          },
+        ],
+        transaction: t,
+      }).then((data) => {
+        if (!data) {
+          throw new Error("There was no login with the username = " + userID);
+        }
+        
+        currentModel = "User";
+        User.destroy(
+          {
+            where: { id: userID },
+          },
+          { transaction: t }
+        );
+
+        currentModel = "Address";
+        Address.destroy(
+          {
+            where: { userId: userID },
+          },
+          { transaction: t }
+        ).catch((err) => {
+          throw err;
+        });
+
+        currentModel = "Login";
+        Login.destroy(
+          {
+            where: { userId: userID },
+          },
+          { transaction: t }
+        ).then(res.send({ message: "User was successfully deleted" }));
+      });
+    });
+  } catch (error) {
+    // If the execution reaches this line, an error occurred.
+    // The transaction has already been rolled back automatically by Sequelize!
+    res.status(500).send({
+      message: "Some error occurred while deleting the " + currentModel,
+      error: error.message,
+    });
+  }
+};

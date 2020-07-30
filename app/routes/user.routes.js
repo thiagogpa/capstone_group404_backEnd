@@ -17,6 +17,11 @@ module.exports = (app) => {
       await user.findOne(req, res);
     });
 
+    // Delete a User by id
+    router.delete("/:id", async (req, res) => {
+      await user.delete(req, res);
+    });
+
     app.use("/api/user", router);
   } catch (error) {
     logger.error("Error while calling API: " + error.message);
