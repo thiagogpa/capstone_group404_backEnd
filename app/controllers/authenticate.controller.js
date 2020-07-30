@@ -38,7 +38,7 @@ exports.authenticate = (req, res) => {
               logger.debug("CREATING COOKIE");
               const payload = { staff, providedUsername };
               const token = jwt.sign(payload, PRIVATE_KEY, {
-                expiresIn: "1h",
+                expiresIn: "12h",
               });
               res.cookie("token", token, { httpOnly: true }).sendStatus(200);
             } else {
