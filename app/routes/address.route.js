@@ -3,31 +3,26 @@ const withAuth = require("../middleware/middleware");
 const withStaffAuth = require("../middleware/middlewareStaff");
 
 module.exports = (app) => {
-  const user = require("../controllers/user.controller");
+  const address = require("../controllers/address.controller");
   var router = require("express").Router();
 
   try {
-    // Retrieve all Users
-    router.get("/", async (req, res) => {
-      await user.findAll(req, res);
+    // Create a new Address
+    router.post("/", async (req, res) => {
+      await address.create(req, res);
     });
 
-    // Retrieve a single User with id
-    router.get("/:id", async (req, res) => {
-      await user.findOne(req, res);
-    });
-
-    // Delete a User by id
+    // Delete an Address by id
     router.delete("/:id", async (req, res) => {
-      await user.delete(req, res);
+      await address.delete(req, res);
     });
 
-    // Update a User by id
+    // Update an Address by id
     router.put("/:id", async (req, res) => {
-      await user.update(req, res);
+      await address.update(req, res);
     });
 
-    app.use("/api/user", router);
+    app.use("/api/address", router);
   } catch (error) {
     logger.error("Error while calling API: " + error.message);
   }

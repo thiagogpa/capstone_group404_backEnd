@@ -7,4 +7,5 @@ module.exports = (app) => {
   require("./faq.routes")(app);
   require("./user.routes")(app);
   require("./order.routes")(app);
+  require("./address.route")(app);
 };

@@ -33,7 +33,7 @@ exports.findAll = async (req, res) => {
             lastName: user.lastName,
             phone: user.phone,
             email: user.email,
-            staff: user.staff,            
+            staff: user.staff,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt,
             deletedAt: user.deletedAt,
@@ -50,7 +50,7 @@ exports.findAll = async (req, res) => {
                   zipcode: addresses.zipcode,
                   createdAt: addresses.createdAt,
                   updatedAt: addresses.updatedAt,
-                  deletedAt: addresses.deletedAt,                  
+                  deletedAt: addresses.deletedAt,
                 }
               );
             }),
@@ -108,7 +108,7 @@ exports.findOne = async (req, res) => {
 
 // Delete a User with the specified id in the request
 exports.delete = async (req, res) => {
-  logger.trace("Calling User Delete Api");  
+  logger.trace("Calling User Delete Api");
 
   const userID = req.params.id;
 
@@ -133,7 +133,7 @@ exports.delete = async (req, res) => {
         if (!data) {
           throw new Error("There was no login with the username = " + userID);
         }
-        
+
         currentModel = "User";
         User.destroy(
           {
@@ -166,6 +166,41 @@ exports.delete = async (req, res) => {
     // The transaction has already been rolled back automatically by Sequelize!
     res.status(500).send({
       message: "Some error occurred while deleting the " + currentModel,
+      error: error.message,
+    });
+  }
+};
+
+/**************************************************************************************************************/
+
+// Update a User by the id in the request
+exports.update = async (req, res) => {
+  logger.trace("Calling User update Api");
+
+  const id = req.params.id;
+
+  try {
+    await db.sequelize.transaction(async (t) => {
+      logger.debug("Updating user");
+      await User.update(req.body, {
+        where: { id: id },
+      }).then((num) => {
+        if (num == 1) {
+          res.send({
+            message: "User was updated successfully.",
+          });
+        } else {
+          res.send({
+            message: `Cannot update userID = ${id}. Maybe User was not found or req.body is empty!`,
+          });
+        }
+      });
+    });
+  } catch (error) {
+    // If the execution reaches this line, an error occurred.
+    // The transaction has already been rolled back automatically by Sequelize!
+    res.status(500).send({
+      message: "Some error occurred while updating the User",
       error: error.message,
     });
   }
