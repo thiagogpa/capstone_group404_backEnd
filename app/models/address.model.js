@@ -55,8 +55,8 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       allowNull: false,
       validate: {
-        notEmpty: { msg: "City must be provided." },
-        len: { args: [0, 6], msg: "City cannot have more than 6 characters." },
+        notEmpty: { msg: "Zipcode must be provided." },
+        len: { args: [0, 6], msg: "Zipcode cannot have more than 6 characters." },
       },
     },
   },
