@@ -28,6 +28,7 @@ exports.authenticate = (req, res) => {
       //it means it ran successfully, but its still necessary to check if the user was found
       if (data != null) {
         let staff = data.user.staff;
+        let userId = data.user.id;
         //Will try to match the provided password with the hash
         bcrypt
           .compare(providedPassword, data.password)
@@ -40,7 +41,10 @@ exports.authenticate = (req, res) => {
               const token = jwt.sign(payload, PRIVATE_KEY, {
                 expiresIn: "12h",
               });
-              res.cookie("token", token, { httpOnly: true }).sendStatus(200);
+              res
+                .cookie("token", token, { httpOnly: true })
+                .status(200)
+                .send({ isStaff: staff, userId: userId });
             } else {
               //Password did NOT match
               logger.debug("Password did not match");
@@ -68,9 +72,7 @@ exports.authenticate = (req, res) => {
     })
     .catch((err) => {
       //It means there was a problem while looking for the username
-      logger.error(
-        "Error retrieving Login with username=" + providedUsername
-      );
+      logger.error("Error retrieving Login with username=" + providedUsername);
       res.status(500).send({
         message: "Error retrieving Login with username=" + providedUsername,
       });
