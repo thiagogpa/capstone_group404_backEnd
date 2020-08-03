@@ -59,7 +59,7 @@ app.post('/payment', (req, res) => {
   logger.trace("Calling Stripe Payment API");
   const body = {
     source: req.body.stripeToken.id,
-    amount: req.body.amount,
+    amount: parseInt(req.body.amount),
     currency: 'cad'
   };
 

@@ -61,10 +61,14 @@ exports.create = async (req, res) => {
         return orderResponse;
       })
       .then((orderResponse) => res.send(orderResponse))
-      .catch((err) =>
-        res.status(500).send({ message: err.message || "Error placing Order." })
-      );
+      .catch((err) => {
+        logger.error(err);
+        res
+          .status(500)
+          .send({ message: err.message || "Error placing Order." });
+      });
   } catch (err) {
+    logger.error(err);
     res.status(500).send({ message: err.message || "Error placing Order." });
   }
 };
