@@ -2,12 +2,9 @@ module.exports = (sequelize, Sequelize) => {
   const { DataTypes } = require("sequelize"); // Import the built-in data types
 
   const Bin = sequelize.define("bin", {
-      wasteType: {
-      type: Sequelize.ENUM('CONSTRUCTION',
-                            'MIXED WASTE',
-                            'CLEAN FILL'
-                            ), 
-      allowNull: false
+    wasteType: {
+      type: Sequelize.ENUM("CONSTRUCTION", "MIXED WASTE", "CLEAN FILL"),
+      allowNull: false,
     },
     sizeLong: {
       type: Sequelize.INTEGER,
@@ -48,16 +45,9 @@ module.exports = (sequelize, Sequelize) => {
         },
       },
     },
-    available: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
     amount: {
       type: DataTypes.INTEGER,
       allowNull: true,
-    },
-    picture: {
-      type: DataTypes.STRING,
     },
   });
 

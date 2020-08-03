@@ -12,6 +12,11 @@ module.exports = (app) => {
       await bin.create(req, res);
     });
 
+    
+    router.post("/available", async (req, res) => {
+      await bin.findAvailable(req, res);
+    });
+
     // Retrieve all Bin
     router.get("/", async (req, res) => {
       await bin.findAll(req, res);
@@ -20,11 +25,6 @@ module.exports = (app) => {
     // Retrieve all published Bin
     router.get("/published", async (req, res) => {
       await bin.findAllPublished(req, res);
-    });
-
-    
-    router.get("/available", async (req, res) => {
-      await bin.findAvailable(req, res);
     });
 
     // Retrieve a single Bin with id

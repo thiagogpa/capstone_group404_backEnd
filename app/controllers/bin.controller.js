@@ -24,9 +24,7 @@ exports.create = async (req, res) => {
     sizeWide: req.body.sizeWide,
     dailyCost: req.body.dailyCost,
     description: req.body.description,
-    available: req.body.available,
     amount: req.body.available,
-    picture: req.body.picture,
   };
 
   // Save Bin in the database
@@ -169,14 +167,24 @@ exports.findAvailable = async (req, res) => {
 
   const { dateFrom: dateFrom, dateTo: dateTo } = req.body;
 
-  const select = `SELECT b.*, (b.amount - IFNULL(c.unavailable,0)) as 'totalAvailable' FROM bins b
+  if (dateFrom == null || dateTo == null) {    
+    res.status(400).send({
+      message: "Content can not be empty!",
+    });
+    return;
+  };
+
+  const select = `SELECT b.*, (b.amount - IFNULL(c.unavailable,0)) as 'available' FROM bins b
     left join (SELECT COUNT(ob.bin_id) as 'unavailable', bin_id FROM orders
    JOIN ordersbins ob ON orders.id = ob.order_id
                WHERE (pick_up_date between '${dateFrom}' and '${dateTo}')
                   or (drop_off_date between '${dateFrom}' and '${dateTo}')
                   or (drop_off_date <= '${dateFrom}' and pick_up_date >= '${dateTo}')
    GROUP BY bin_id) c
-   on bin_id = id;`;
+   on bin_id = id
+    WHERE
+    deleted_at is null
+   `;
 
   const users = await db.sequelize.query(select, {
     model: Bin,
