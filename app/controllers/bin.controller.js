@@ -24,7 +24,7 @@ exports.create = async (req, res) => {
     sizeWide: req.body.sizeWide,
     dailyCost: req.body.dailyCost,
     description: req.body.description,
-    amount: req.body.available,
+    amount: req.body.amount,
   };
 
   // Save Bin in the database
