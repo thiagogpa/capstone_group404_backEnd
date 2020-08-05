@@ -175,15 +175,17 @@ exports.findAvailable = async (req, res) => {
   };
 
   const select = `SELECT b.*, (b.amount - IFNULL(c.unavailable,0)) as 'available' FROM bins b
-    left join (SELECT COUNT(ob.bin_id) as 'unavailable', bin_id FROM orders
-   JOIN ordersbins ob ON orders.id = ob.order_id
-               WHERE (pick_up_date between '${dateFrom}' and '${dateTo}')
-                  or (drop_off_date between '${dateFrom}' and '${dateTo}')
-                  or (drop_off_date <= '${dateFrom}' and pick_up_date >= '${dateTo}')
-   GROUP BY bin_id) c
+    left join (
+      SELECT SUM(ob.selected) as 'unavailable', bin_id FROM orders
+      JOIN ordersbins ob ON orders.id = ob.order_id
+        WHERE (pick_up_date between '${dateFrom}' and '${dateTo}')
+        or (drop_off_date between '${dateFrom}' and '${dateTo}')
+        or (drop_off_date <= '${dateFrom}' and pick_up_date >= '${dateTo}')
+      GROUP BY bin_id) c
    on bin_id = id
     WHERE
     deleted_at is null
+    AND (b.amount - IFNULL(c.unavailable,0)) > 0
    `;
 
   const users = await db.sequelize.query(select, {
